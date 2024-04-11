@@ -1,0 +1,199 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n\n## Streaming Transformations\nin this section we federate kafka topic data and interact using SQL.\n\n1. create table on top of kafka and read the data\n2. create jdbc federation (access objects in a database)\n3. read data from kafka, transform and write into database\n4. read data from kafka, transform and write to another topic(stream ETL)",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 03:08:49.680",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712802681878_2092057401",
+      "id": "paragraph_1712802681878_2092057401",
+      "dateCreated": "2024-04-11 02:31:21.879",
+      "status": "READY"
+    },
+    {
+      "text": "%flink.ssql(runAsOne\u003dtrue)\n\ndrop table if exists transactions;\n\nCREATE TABLE if not exists transactions ( \n    account_id  BIGINT, \n    amount      BIGINT, \n    transaction_time TIMESTAMP(3), \n    WATERMARK FOR transaction_time AS transaction_time - INTERVAL \u00275\u0027 SECOND \n) WITH ( \n    \u0027connector\u0027 \u003d \u0027kafka\u0027, \n    \u0027topic\u0027     \u003d \u0027transactions\u0027, \n    \u0027properties.bootstrap.servers\u0027 \u003d \u0027kafka:9092\u0027, \n    \u0027scan.startup.mode\u0027 \u003d \u0027earliest-offset\u0027, \n    \u0027format\u0027    \u003d \u0027csv\u0027 \n);\n\ndrop table if exists kafka_agg_transactions;\n\nCREATE TABLE if not exists kafka_agg_transactions (\n                              account_id  BIGINT,\n                              total_amount      BIGINT,\n                              window_start TIMESTAMP(3),\n                              window_end TIMESTAMP(3)\n                          ) WITH (\n    \u0027connector\u0027 \u003d \u0027kafka\u0027,\n    \u0027topic\u0027     \u003d \u0027agg.transactions\u0027,\n    \u0027properties.bootstrap.servers\u0027 \u003d \u0027kafka:9092\u0027,\n    \u0027scan.startup.mode\u0027 \u003d \u0027earliest-offset\u0027,\n    \u0027format\u0027    \u003d \u0027json\u0027\n);",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:46:44.959",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Table has been dropped.\nTable has been created.\nTable has been dropped.\nTable has been created.\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712799530369_2099623309",
+      "id": "paragraph_1712799530369_2099623309",
+      "dateCreated": "2024-04-11 01:38:50.371",
+      "dateStarted": "2024-04-11 02:46:44.983",
+      "dateFinished": "2024-04-11 02:47:04.522",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%flink.ssql(runAsOne\u003dtrue)\n\ndrop catalog if exists mysql;\n\nCREATE CATALOG mysql WITH(\n    \u0027type\u0027 \u003d \u0027jdbc\u0027,\n    \u0027default-database\u0027 \u003d \u0027demo\u0027,\n    \u0027username\u0027 \u003d \u0027demo\u0027,\n    \u0027password\u0027 \u003d \u0027demo\u0027,\n    \u0027base-url\u0027 \u003d \u0027jdbc:mysql://mysql:3306\u0027\n);",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:46:55.486",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Catalog has been dropped.\nCatalog has been created.\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712799585541_1781818697",
+      "id": "paragraph_1712799585541_1781818697",
+      "dateCreated": "2024-04-11 01:39:45.542",
+      "dateStarted": "2024-04-11 02:47:04.537",
+      "dateFinished": "2024-04-11 02:47:05.383",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%flink.ssql(runAsOne\u003dtrue, jobName\u003d\"Kafka to Kafka Transformation\")\n\n\ninsert into mysql.demo.agg_transactions\nSELECT account_id, SUM(amount), window_start, window_end\nFROM TABLE(\n        TUMBLE(TABLE transactions, DESCRIPTOR(transaction_time), INTERVAL \u002710\u0027 MINUTES))\nGROUP BY account_id, window_start, window_end;\n\ninsert into kafka_agg_transactions \nSELECT account_id, SUM(amount), window_start, window_end\nFROM TABLE(\n        TUMBLE(TABLE transactions, DESCRIPTOR(transaction_time), INTERVAL \u002710\u0027 MINUTES))\nGROUP BY account_id, window_start, window_end;",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:47:02.657",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true,
+        "latest_checkpoint_path": "\u003ccheckpoint-not-externally-addressable\u003e"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "FLINK JOB",
+          "tooltip": "View in Flink web UI",
+          "group": "flink",
+          "values": [
+            {
+              "jobUrl": "false#/job/51345d828d901f5625e974002192a0ae"
+            }
+          ],
+          "interpreterSettingId": "flink"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712799726093_1745643329",
+      "id": "paragraph_1712799726093_1745643329",
+      "dateCreated": "2024-04-11 01:42:06.096",
+      "dateStarted": "2024-04-11 02:47:05.398",
+      "status": "ABORT"
+    },
+    {
+      "text": "%flink.ssql\n",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:47:02.677",
+      "progress": 0,
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712803622676_1163619975",
+      "id": "paragraph_1712803622676_1163619975",
+      "dateCreated": "2024-04-11 02:47:02.677",
+      "status": "READY"
+    }
+  ],
+  "name": "03-Straming-Transformations",
+  "id": "2JVDJZA3Q",
+  "defaultInterpreterGroup": "flink",
+  "version": "0.11.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {
+    "flink-2JVDJZA3Q": [
+      {
+        "name": "duration",
+        "object": "1 hours 57 minutes 15 seconds",
+        "noteId": "2JVDJZA3Q",
+        "paragraphId": "paragraph_1712799726093_1745643329"
+      }
+    ]
+  },
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {}
+}

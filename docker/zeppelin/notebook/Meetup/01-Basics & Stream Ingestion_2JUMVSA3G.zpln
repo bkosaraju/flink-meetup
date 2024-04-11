@@ -1,0 +1,342 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n\n## BASICS\nin this section we federate kafka topic data and interact using SQL.\n\n1. create table on top of kafka and read the data\n2. create jdbc federation (access objects in a database)\n3. Simple data ingestion into Kafka\n4. read data from kafka and write into database\n5. read data from kafka, transform and write to another topic",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:38:13.823",
+      "progress": 0,
+      "config": {
+        "tableHide": true,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9.0,
+        "editorHide": false,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eBASICS\u003c/h2\u003e\n\u003cp\u003ein this section we federate kafka topic data and interact using SQL.\u003c/p\u003e\n\u003col\u003e\n\u003cli\u003ecreate table on top of kafka and read the data\u003c/li\u003e\n\u003cli\u003ecreate jdbc federation (access objects in a database)\u003c/li\u003e\n\u003cli\u003edo simple transformation of data\u003c/li\u003e\n\u003cli\u003eread data from kafka and write into database\u003c/li\u003e\n\u003cli\u003eread data from kafka, transform and write to another topic\u003c/li\u003e\n\u003c/ol\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712791691038_654884340",
+      "id": "paragraph_1712565297486_230459389",
+      "dateCreated": "2024-04-10 23:28:11.039",
+      "dateStarted": "2024-04-11 02:36:34.457",
+      "dateFinished": "2024-04-11 02:36:38.463",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%flink.ssql(runAsOne\u003dtrue)\n\ndrop table if exists transactions;\n\nCREATE TABLE if not exists transactions ( \n    account_id  BIGINT, \n    amount      BIGINT, \n    transaction_time TIMESTAMP(3), \n    WATERMARK FOR transaction_time AS transaction_time - INTERVAL \u00275\u0027 SECOND \n) WITH ( \n    \u0027connector\u0027 \u003d \u0027kafka\u0027, \n    \u0027topic\u0027     \u003d \u0027transactions\u0027, \n    \u0027properties.bootstrap.servers\u0027 \u003d \u0027kafka:9092\u0027, \n    \u0027scan.startup.mode\u0027 \u003d \u0027earliest-offset\u0027, \n    \u0027format\u0027    \u003d \u0027csv\u0027 \n);\n\ndrop table if exists kafka_sink;\n\nCREATE TABLE kafka_sink ( \n    account_id  BIGINT, \n    amount      BIGINT, \n    transaction_time TIMESTAMP(3), \n    WATERMARK FOR transaction_time AS transaction_time - INTERVAL \u00275\u0027 SECOND \n) WITH ( \n    \u0027connector\u0027 \u003d \u0027kafka\u0027, \n    \u0027topic\u0027     \u003d \u0027zeppelin.sink\u0027, \n    \u0027properties.bootstrap.servers\u0027 \u003d \u0027kafka:9092\u0027, \n    \u0027scan.startup.mode\u0027 \u003d \u0027earliest-offset\u0027, \n    \u0027format\u0027    \u003d \u0027json\u0027 \n);\n\n\nCREATE TABLE if not exists kafka_employees ( \n                           emp_no      Integer,\n                           birth_date  Date,\n                           first_name  VARCHAR(14),\n                           last_name   VARCHAR(16),\n                           gender      VARCHAR(1),\n                           hire_date   Date\n) WITH ( \n    \u0027connector\u0027 \u003d \u0027kafka\u0027, \n    \u0027topic\u0027     \u003d \u0027employees\u0027, \n    \u0027properties.bootstrap.servers\u0027 \u003d \u0027kafka:9092\u0027, \n    \u0027scan.startup.mode\u0027 \u003d \u0027earliest-offset\u0027, \n    \u0027format\u0027    \u003d \u0027json\u0027 \n);\n",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:44:45.713",
+      "progress": 0,
+      "config": {
+        "latest_checkpoint_path": "\u003ccheckpoint-not-externally-addressable\u003e",
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "account_id": "string",
+                      "amount": "string",
+                      "transaction_time": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            },
+            "helium": {}
+          }
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Table has been dropped.\nTable has been created.\nTable has been dropped.\nTable has been created.\nTable has been created.\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712791691040_1655176517",
+      "id": "paragraph_1712564944048_2037950216",
+      "dateCreated": "2024-04-10 23:28:11.041",
+      "dateStarted": "2024-04-11 02:44:45.728",
+      "dateFinished": "2024-04-11 02:44:45.810",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%flink.ssql(runAsOne\u003dtrue)\n\ndrop catalog if exists mysql;\n\nCREATE CATALOG mysql WITH(\n    \u0027type\u0027 \u003d \u0027jdbc\u0027,\n    \u0027default-database\u0027 \u003d \u0027demo\u0027,\n    \u0027username\u0027 \u003d \u0027demo\u0027,\n    \u0027password\u0027 \u003d \u0027demo\u0027,\n    \u0027base-url\u0027 \u003d \u0027jdbc:mysql://mysql:3306\u0027\n);\n",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:42:29.487",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "table": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Catalog has been dropped.\nCatalog has been created.\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712791691042_1733334657",
+      "id": "paragraph_1712567992568_66345689",
+      "dateCreated": "2024-04-10 23:28:11.043",
+      "dateStarted": "2024-04-11 02:42:45.634",
+      "dateFinished": "2024-04-11 02:42:46.455",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%flink.ssql(runAsOne\u003dtrue,  jobName\u003d\"Kafka Ingstion simple events\" )\n\ninsert into kafka_sink values(1, 100, current_timestamp);\n\ninsert into kafka_sink values(2, 200, current_timestamp);",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:44:49.849",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "ANGULAR",
+            "data": "\u003ch1\u003eDuration: {{duration}} \u003c/h1\u003e\n"
+          },
+          {
+            "type": "TEXT",
+            "data": "Insertion successfully.\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "FLINK JOB",
+          "tooltip": "View in Flink web UI",
+          "group": "flink",
+          "values": [
+            {
+              "jobUrl": "false#/job/80d18ab2338f1ac3c299f5547d42109b"
+            }
+          ],
+          "interpreterSettingId": "flink"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712799859416_275077305",
+      "id": "paragraph_1712799859416_275077305",
+      "dateCreated": "2024-04-11 01:44:19.423",
+      "dateStarted": "2024-04-11 02:44:49.866",
+      "dateFinished": "2024-04-11 02:44:55.794",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%flink.ssql(runAsOne\u003dtrue,  jobName\u003d\"Kafka Ingstion from Database\" )\ninsert into kafka_employees\nselect * from mysql.demo.employees;\n",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-11 02:43:21.561",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "ANGULAR",
+            "data": "\u003ch1\u003eDuration: {{duration}} \u003c/h1\u003e\n"
+          },
+          {
+            "type": "TEXT",
+            "data": "Insertion successfully.\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "FLINK JOB",
+          "tooltip": "View in Flink web UI",
+          "group": "flink",
+          "values": [
+            {
+              "jobUrl": "false#/job/1680fd3564a8b4001895bc301debc377"
+            }
+          ],
+          "interpreterSettingId": "flink"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712799898917_130389863",
+      "id": "paragraph_1712799898917_130389863",
+      "dateCreated": "2024-04-11 01:44:58.919",
+      "dateStarted": "2024-04-11 02:43:21.587",
+      "dateFinished": "2024-04-11 02:43:29.836",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%ssql\n",
+      "user": "anonymous",
+      "dateUpdated": "2024-04-10 23:28:11.052",
+      "progress": 0,
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true,
+        "editorSetting": {}
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1712791691051_220520810",
+      "id": "paragraph_1712569642515_1896230828",
+      "dateCreated": "2024-04-10 23:28:11.052",
+      "status": "READY"
+    }
+  ],
+  "name": "01-Basics \u0026 Stream Ingestion",
+  "id": "2JUMVSA3G",
+  "defaultInterpreterGroup": "spark",
+  "version": "0.11.1",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false,
+    "looknfeel": "simple",
+    "personalizedMode": "false"
+  },
+  "info": {}
+}

@@ -16,7 +16,7 @@
 # limitations under the License.
 ################################################################################
 
-version: '2.1'
+version: '3'
 services:
   jobmanager:
     image: flink-image:1.16-scala_2.12
@@ -95,6 +95,11 @@ services:
     volumes:
       - ./docker/mysql-init:/docker-entrypoint-initdb.d
       - dbData:/data
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "mysql", "-u", "demo", "--password=demo" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
   zeppelin:
     image: zeppelin:0.11.0
     build:
@@ -133,9 +138,13 @@ services:
       - kafka
       - mysql
     depends_on:
-      - jobmanager
-      - kafka
-      - mysql
+        mysql:
+          condition: service_healthy
+        jobmanager:
+          condition: service_started
+        kafka:
+          condition: service_started
+
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
       - |

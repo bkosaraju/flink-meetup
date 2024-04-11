@@ -20,6 +20,7 @@ ENV FLINK_HOME="/opt/flink"
 COPY flink-interpreter-setting.json /opt/zeppelin/interpreter/flink/interpreter-setting.json
 COPY interpreter.json /opt/zeppelin/conf/
 COPY --from=flink-distribution ${FLINK_HOME} ${FLINK_HOME}
+COPY notebook /opt/zeppelin/notebook
 USER 0
 RUN mv ${FLINK_HOME}/opt/flink-table-planner_2.12-1.16.3.jar ${FLINK_HOME}/lib/ &&\
     mv ${FLINK_HOME}/lib/flink-table-planner-loader-1.16.3.jar ${FLINK_HOME}/opt/ &&\
