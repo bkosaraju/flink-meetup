@@ -5,6 +5,9 @@
 .DS_Store
 .vscode
 
+**/build
+**/.gradle
+
 # Eclipse
 .project
 .classpath
