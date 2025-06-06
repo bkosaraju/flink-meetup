@@ -16,10 +16,9 @@
 # limitations under the License.
 ################################################################################
 
-version: '3'
 services:
   jobmanager:
-    image: flink-image:1.16-scala_2.12
+    image: flink-image:2.0.0-scala_2.12
     build: docker/flink-cluster
     hostname: "jobmanager"
     expose:
@@ -39,7 +38,7 @@ services:
       - kafka
       - mysql
   taskmanager:
-    image: flink-image:1.16-scala_2.12
+    image: flink-image:2.0.0-scala_2.12
     expose:
       - "6121"
       - "6122"
@@ -58,30 +57,54 @@ services:
         taskmanager.numberOfTaskSlots: 8
         parallelism.default: 2
         classloader.resolve-order: parent-first
-  zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
-    ports:
-      - "2181:2181"
+
+#   data-generator:
+#       image: apache/data-generator:1
+#       build: docker/data-generator
+#       depends_on:
+#         - kafka
   kafka:
-    image: wurstmeister/kafka:2.13-2.8.1
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
     ports:
       - "9092:9092"
-      - "29092:29092"
-    depends_on:
-      - zookeeper
+      - "9093:9093"
     environment:
-      KAFKA_LISTENERS: OUTSIDE://0.0.0.0:29092,INSIDE://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "kafka:1:1,rule:1:1,event:1:1,agg.transactions:1:1"
-  data-generator:
-      image: apache/data-generator:1
-      build: docker/data-generator
-      depends_on:
-        - kafka
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+
+      # Memory optimization
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_LOG_SEGMENT_BYTES: 104857600
+      #Create Topics
+    command: >
+      bash -c "
+        /etc/confluent/docker/run &
+        sleep 10 &&
+        for tpk in kafka rule event agg.transactions; do
+          kafka-topics --bootstrap-server localhost:9092 --create --topic $$tpk --partitions 1 --replication-factor 1 --if-not-exists;
+        done && \
+        wait
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list | grep -q 'kafka\\|rule\\|event\\|agg.transactions'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   mysql:
     image: mysql:8.0.31
     command: --default-authentication-plugin=mysql_native_password --secure_file_priv=/data
@@ -100,23 +123,22 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
-  zeppelin:
-    image: zeppelin:0.11.0
-    build:
-      context: docker/zeppelin
-      args:
-        FLINK_IMAGE: flink-image:1.16-scala_2.12
-    links:
-      - jobmanager
-    ports:
-      - "9080:8080"
-      - "9083:8081"
-    depends_on:
-      - jobmanager
-      - kafka
-    volumes:
-      - ./docker/zeppelin/notebook:/opt/zeppelin/notebook
-
+#   zeppelin:
+#     image: zeppelin:0.11.0
+#     build:
+#       context: docker/zeppelin
+#       args:
+#         FLINK_IMAGE: flink-image:2.0.0-scala_2.12
+#     links:
+#       - jobmanager
+#     ports:
+#       - "9080:8080"
+#       - "9083:8081"
+#     depends_on:
+#       - jobmanager
+#       - kafka
+#     volumes:
+#       - ./docker/zeppelin/notebook:/opt/zeppelin/notebook
   ruleengine:
     image: rule-engine:17.0
     command:
@@ -132,7 +154,7 @@ services:
     build:
       context: docker/rule-engine
       args:
-        FLINK_IMAGE: flink-image:1.16-scala_2.12
+        FLINK_IMAGE: flink-image:2.0.0-scala_2.12
     links:
       - jobmanager
       - kafka
@@ -144,21 +166,20 @@ services:
           condition: service_started
         kafka:
           condition: service_started
-
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         classloader.resolve-order: parent-first
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    restart: "no"
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: "kafka:9092"
-    depends_on:
-      - "kafka"
+#   kafdrop:
+#     image: obsidiandynamics/kafdrop
+#     restart: "no"
+#     ports:
+#       - "9000:9000"
+#     environment:
+#       KAFKA_BROKERCONNECT: "kafka:9092"
+#     depends_on:
+#       - "kafka"
 volumes:
   dbData:

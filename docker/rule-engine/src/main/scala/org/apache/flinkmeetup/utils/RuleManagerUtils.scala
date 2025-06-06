@@ -16,7 +16,6 @@ import java.util
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 trait RuleManagerUtils extends DefaultConfig{
-
   def getRowAsMap(inputRow: Row, excludeColumns: String = ""): util.HashMap[String, String] = {
     val rowMap = new util.HashMap[String, String]()
     if (inputRow != null && inputRow.getFieldNames(true).asScala != null) {
@@ -36,11 +35,13 @@ trait RuleManagerUtils extends DefaultConfig{
     )
   }
   //Ignore for comparision
-  val metaColumns: Seq[String] = Seq( "rulename", "actionid")
-  val actionPolicyIdColumn = "actionid"
-  val ruleIdColumn = "rulename"
-  val ruleKeyColumn = "rulekey"
-  val ruleValueColumn = "rulevalue"
+  val META_COLUMNS: Seq[String] = Seq( "rulename", "actionid")
+  val ACTION_POLICY_ID = "actionid"
+  val RULE_NAME = "rulename"
+  val RULE_VALUE = "rulevalue"
+  val MESSAGE_VALUE = "message"
+  val MESSAGE_ID = "id"
+
 
   private [flinkmeetup] def getStringOrNull(field: AnyRef): String = if (field == null ) null else field.toString
 
@@ -66,13 +67,16 @@ trait RuleManagerUtils extends DefaultConfig{
 
 
   private[flinkmeetup] def loadExternalCatalog(config: Map[String, String], tableEnvironment: StreamTableEnvironment): Unit = {
-      val catalog = new JdbcCatalog(
+
+
+    val catalog = new JdbcCatalog(
         Thread.currentThread.getContextClassLoader,
         config.getOrElse("ExternalCatalogName","mysql"),
         config.getOrElse("ExternalCatalogDatabase","demo"),
         config.getOrElse("ExternalCatalogUserName","demo"),
         config.getOrElse("ExternalCatalogPassword","demo"),
         config.getOrElse("ExternalCatalogBaseUrl","jdbc:mysql://mysql:3306"),
+        null// default catalog name, can be anything
       )
       tableEnvironment.registerCatalog(config.getOrElse("ExternalCatalogName","mysql"), catalog)
   }

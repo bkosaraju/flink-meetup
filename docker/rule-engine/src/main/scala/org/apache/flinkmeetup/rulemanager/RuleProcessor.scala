@@ -7,6 +7,7 @@ import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.table.api.bridge.scala.StreamTableEnvironment
 import org.apache.flink.types.Row
+import org.apache.flinkmeetup.rulemanager.AIProcessFunction
 import org.apache.flinkmeetup.utils.{RuleManagerUtils, Session}
 
 import java.nio.charset.Charset
@@ -43,7 +44,7 @@ import scala.collection.JavaConverters.mapAsScalaMapConverter
     val broadcastRuleStream = broadcastRuleInitStream.broadcast(mapRuleStateDescriptor)
 
     //join the streams
-    val outcomeStream = dataStream.connect(broadcastRuleStream).process[Row](new ProcessFunction())
+    val outcomeStream = dataStream.connect(broadcastRuleStream).process[Row](new AIProcessFunction())
     //target write create a table
     streamTableEnvironment.createTemporaryView("processData", outcomeStream);
 
