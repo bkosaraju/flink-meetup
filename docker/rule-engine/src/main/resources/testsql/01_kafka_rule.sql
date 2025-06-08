@@ -1,8 +1,9 @@
 CREATE TABLE if not exists kafka_rule (
-            rulename VARCHAR(20),
-            rulekey VARCHAR(20),
+            rulename STRING,
+            rulekey STRING,
             rulevalue STRING,
-            actionid int
+            actionid STRING,
+            actionvalue STRING
     ) WITH (
           'connector' = 'kafka',
           'topic'     = 'rule',

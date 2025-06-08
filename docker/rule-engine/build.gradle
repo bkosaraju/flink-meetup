@@ -42,6 +42,8 @@ dependencies {
     api group: 'org.scala-lang', name: 'scala-library', version: "$scalaVariant" + '.15'
     api group: 'org.scala-lang', name: 'scala-reflect', version: "$scalaVariant" + '.15'
     api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    //api 'org.apache.logging.log4j:log4j-core:2.20.0'
     compileOnly group: 'org.projectlombok', name:'lombok', version: '1.18.26'
 
     implementation group: 'org.apache.flink', name: 'flink-streaming-scala_2.12', version: "$flinkVersion"
@@ -62,6 +64,10 @@ dependencies {
     testImplementation ("org.apache.flink:flink-test-utils:1.16.3") {
         exclude group: 'org.apache.flink', module:'flink-shaded-guava'
     }
+//    testImplementation "org.apache.logging.log4j:log4j-slf4j-impl:2.20.0"
+//    testImplementation "org.slf4j:slf4j-nop:2.0.13"
+//    testImplementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
+//    testImplementation 'org.apache.logging.log4j:log4j-core:2.20.0'
     testImplementation 'org.apache.flink:flink-shaded-guava:18.0-9.0'
     compileOnly "org.apache.flink:flink-clients:1.20.1"
     compileOnly group: 'org.apache.flink', name: 'flink-table-runtime', version: "1.18.1"
@@ -74,4 +80,23 @@ dependencies {
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.33'
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        scala {
+            srcDirs = ['src/main/scala']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        scala {
+            srcDirs = ['src/test/scala']
+        }
+    }
+}
+compileScala.dependsOn compileJava
 

@@ -1,19 +1,6 @@
-package org.apache.flnkmeetup.utils;
+package org.apache.flinkmeetup.utils;
 
-import com.google.genai.Client;
-
-public class GeminiUtils {
-
-    public static final String MODEL_NAME = "gemini-2.0-flash-001";
-    public static final String MATCH = "MATCH";
-    public static final String NO_MATCH = "NO_MATCH";
-
-    public static Client getGeminiClient(String apiKey) {
-        return Client.builder()
-                .apiKey(apiKey)
-                .build();
-    }
-
+public class Prompts {
     public static String generateRuleEvolutionPrompt(String jsonPayloadStr, String ruleString) {
         return """
             You are a rule evaluation engine.
@@ -39,26 +26,24 @@ public class GeminiUtils {
                 .formatted(jsonPayloadStr, ruleString);
     }
 
-    public String generateCallToMCP(String inputString, String previousError ) {
+    public static String generateCallToMCP(String inputString, String previousError) {
         if (previousError != null ){
             return """
                 You are a tool call generator.
                 I will provide you with a user intent and a previous error message.
                 Your task is to generate a JSON object representing a tool call.
                 The JSON should contain the 'tool_name' and 'parameters' keys.
-                The output should be a single JSON object with no other text or formatting.
-                Do **NOT** include any backticks (`), triple backticks (```), or code blocks in the response.
+                Do NOT add any other text, explanation, or punctuation.
                 
                 User Intent:
                 ```
                 %s
                 ```
-
+                
                 Previous Error:
                 ```
                 %s
                 ```
-                
                 Generate the tool call based on the user intent and previous error.""".formatted(inputString, previousError);
         } else {
             return """
@@ -66,8 +51,7 @@ public class GeminiUtils {
                 I will provide you with a user intent.
                 Your task is to generate a JSON object representing a tool call.
                 The JSON should contain the 'tool_name' and 'parameters' keys.
-                The output should be a single JSON object with no other text or formatting.
-                Do **NOT** include any backticks (`), triple backticks (```), or code blocks in the response.
+                Do NOT add any other text, explanation, or punctuation.
 
                 User Intent:
                 ```
@@ -77,4 +61,27 @@ public class GeminiUtils {
 
         }
     }
+
+    static String contextualizeMessage(String message, String contextualInfo) {
+        return """
+            You are a context-aware assistant.
+            I have a message template that needs to be populated with data from the following JSON context.  
+            Please replace the placeholders in the template with the corresponding values extracted from the JSON. 
+            For placeholders that result in multiple values, join them with a comma. If a value is missing from the JSON context for a particular placeholder, replace the placeholder with 'N/A'.  
+            Return the filled-in message as a single line of text.
+            Do NOT add any other text, explanation, or punctuation.
+          
+            Message:
+            ```
+            %s
+            ```
+
+            Contextual Information:
+            ```
+            %s
+            ```
+
+            Generate the response by incorporating the contextual information into the message.""".formatted(message, contextualInfo);
+    }
+
 }
