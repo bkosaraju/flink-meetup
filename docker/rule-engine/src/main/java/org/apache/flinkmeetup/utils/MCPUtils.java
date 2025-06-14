@@ -14,20 +14,31 @@ public class MCPUtils {
     static Logger logger = LoggerFactory.getLogger(MCPUtils.class);
     static int MAX_TRY_COUNT = 3;
 
+    private static List<McpSyncClient> mcpClients;
+
+    public static void setMcpClients(List<McpSyncClient> mcpClients) {
+        if (mcpClients == null) {
+            MCPUtils.mcpClients =  List.of(
+                    McpClientFactory.createMcpClient("npx", "-y", "@modelcontextprotocol/server-slack"),
+                    McpClientFactory.createMcpClient("npx", "-y", "@bytebase/dbhub"),
+                    McpClientFactory.createMcpClient("npx", "-y", "dkmaker-mcp-rest-api")
+            );
+        }
+    }
+
+
+    public MCPUtils(List<McpSyncClient> mcpClients) {
+        setMcpClients(mcpClients);
+    }
+
     public static void actionExecutor(String message, String contextualInfo) {
-        List<McpSyncClient> mcpClients = List.of(
-                McpClientFactory.createMcpClient("npx", "-y", "@modelcontextprotocol/server-slack"),
-                McpClientFactory.createMcpClient("npx", "-y", "@bytebase/dbhub")
-        );
-
+        MCPUtils.setMcpClients(mcpClients);
         GenerateContentConfig generatedContentConfig = GeminiUtils.convertMCPToolsToGeminiConfig(mcpClients);
-        //String message = "List all the available channels in Slack with their IDs";
-
         String contextualMessage = Prompts.contextualizeMessage(message, contextualInfo);
         JsonNode jsonNode = GeminiUtils.generateMCPQuery(generatedContentConfig, contextualMessage, null);
         int iterationCont = 0;
         iterativeToolCallExecutor(jsonNode, mcpClients, iterationCont, generatedContentConfig, contextualMessage, "");
-        McpClientFactory.shutdownAllClients(mcpClients);
+        //McpClientFactory.shutdownAllClients(mcpClients);
     }
 
     private static void iterativeToolCallExecutor(JsonNode mpcJsonPayload, List<McpSyncClient> mcpClients, int iterationCont, GenerateContentConfig generatedContentConfig, String originalMessage, String previousErrors) {

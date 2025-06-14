@@ -17,46 +17,50 @@
 ################################################################################
 
 services:
-#   jobmanager:
-#     image: flink-image:2.0.0-scala_2.12
-#     build: docker/flink-cluster
-#     hostname: "jobmanager"
-#     expose:
-#       - "6123"
-#     ports:
-#       - "9081:8081"
-#     command: jobmanager
-#     environment:
-#       - JOB_MANAGER_RPC_ADDRESS=jobmanager
-#       - |
-#         FLINK_PROPERTIES=
-#           jobmanager.rpc.address: jobmanager
-#           taskmanager.numberOfTaskSlots: 8
-#           parallelism.default: 2
-#           classloader.resolve-order: parent-first
-#     depends_on:
-#       - kafka
-#       - mysql
-#   taskmanager:
-#     image: flink-image:2.0.0-scala_2.12
-#     expose:
-#       - "6121"
-#       - "6122"
-#     depends_on:
-#       - jobmanager
-#     deploy:
-#         replicas: 2
-#     command: taskmanager
-#     links:
-#       - jobmanager:jobmanager
-#     environment:
-#       - JOB_MANAGER_RPC_ADDRESS=jobmanager
-#       - |
-#         FLINK_PROPERTIES=
-#         jobmanager.rpc.address: jobmanager
-#         taskmanager.numberOfTaskSlots: 8
-#         parallelism.default: 2
-#         classloader.resolve-order: parent-first
+  jobmanager:
+    image: flink-image:2.0.0-scala_2.12
+    build: docker/flink-cluster
+    hostname: "jobmanager"
+    expose:
+      - "6123"
+    ports:
+      - "9081:8081"
+    command: jobmanager
+    env_file:
+      - .env
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - |
+        FLINK_PROPERTIES=
+          jobmanager.rpc.address: jobmanager
+          taskmanager.numberOfTaskSlots: 8
+          parallelism.default: 2
+          classloader.resolve-order: parent-first
+    depends_on:
+      - kafka
+      - mysql
+  taskmanager:
+    image: flink-image:2.0.0-scala_2.12
+    expose:
+      - "6121"
+      - "6122"
+    depends_on:
+      - jobmanager
+    deploy:
+        replicas: 2
+    command: taskmanager
+    env_file:
+      - .env
+    links:
+      - jobmanager:jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 8
+        parallelism.default: 2
+        classloader.resolve-order: parent-first
 
 #   data-generator:
 #       image: apache/data-generator:1
@@ -65,7 +69,6 @@ services:
 #         - kafka
   kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: kafka
     ports:
       - "9092:9092"
       - "9093:9093"
@@ -139,39 +142,41 @@ services:
 #       - kafka
 #     volumes:
 #       - ./docker/zeppelin/notebook:/opt/zeppelin/notebook
-#   ruleengine:
-#     image: rule-engine:17.0
-#     command:
-#       - /opt/flink/bin/flink
-#       - run
-#       - --jobmanager
-#       - jobmanager:8081
-#       - -D
-#       - classloader.resolve-order=parent-first
-#       - -c
-#       - org.apache.flinkmeetup.applauncher.Launcher
-#       - /opt/flink/usrlib/rule-engine-all.jar
-#     build:
-#       context: docker/rule-engine
-#       args:
-#         FLINK_IMAGE: flink-image:2.0.0-scala_2.12
-#     links:
-#       - jobmanager
-#       - kafka
-#       - mysql
-#     depends_on:
-#         mysql:
-#           condition: service_healthy
-#         jobmanager:
-#           condition: service_started
-#         kafka:
-#           condition: service_started
-#     environment:
-#       - JOB_MANAGER_RPC_ADDRESS=jobmanager
-#       - |
-#         FLINK_PROPERTIES=
-#         jobmanager.rpc.address: jobmanager
-#         classloader.resolve-order: parent-first
+  ruleengine:
+    image: rule-engine:17.0
+    command:
+      - /opt/flink/bin/flink
+      - run
+      - --jobmanager
+      - jobmanager:8081
+      - -D
+      - classloader.resolve-order=parent-first
+      - -c
+      - org.apache.flinkmeetup.applauncher.Launcher
+      - /opt/flink/usrlib/rule-engine-all.jar
+    build:
+      context: docker/rule-engine
+      args:
+        FLINK_IMAGE: flink-image:2.0.0-scala_2.12
+    links:
+      - jobmanager
+      - kafka
+      - mysql
+    depends_on:
+        mysql:
+          condition: service_healthy
+        jobmanager:
+          condition: service_started
+        kafka:
+          condition: service_started
+    env_file:
+      - .env
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        classloader.resolve-order: parent-first
 #   kafdrop:
 #     image: obsidiandynamics/kafdrop
 #     restart: "no"

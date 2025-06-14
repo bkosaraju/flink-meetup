@@ -37,7 +37,6 @@ public class McpClientFactory {
                             McpSchema.CreateMessageResult.StopReason.END_TURN
                     );
                 }).build();
-
         mcpClient.initialize();
         return mcpClient;
     }

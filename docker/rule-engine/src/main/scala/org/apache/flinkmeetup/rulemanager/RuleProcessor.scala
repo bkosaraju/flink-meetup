@@ -24,7 +24,6 @@ import scala.collection.JavaConverters.mapAsScalaMapConverter
   }
 
   def processRules(config: Map[String, String], streamEnvironment: StreamExecutionEnvironment, streamTableEnvironment: StreamTableEnvironment): Unit = {
-
     //load external catalog
     loadExternalCatalog(config, streamTableEnvironment)
 
@@ -35,16 +34,15 @@ import scala.collection.JavaConverters.mapAsScalaMapConverter
     })
     //Create Input stream
     val dataStream: DataStream[Row] = streamTableEnvironment.toChangelogStream(streamTableEnvironment.from(config.getOrElse("dataStreamTable", "datastreamtable")))
-
     val broadcastRuleTable = streamTableEnvironment.from(config.getOrElse("broadcastRuleStreamTable", "rule"))
     val broadcastRuleInitStream: DataStream[Row] = streamTableEnvironment.toDataStream(broadcastRuleTable)
-
 
     //init the stream
     val broadcastRuleStream = broadcastRuleInitStream.broadcast(mapRuleStateDescriptor)
 
     //join the streams
     val outcomeStream = dataStream.connect(broadcastRuleStream).process[Row](new AIProcessFunction())
+
     //target write create a table
     streamTableEnvironment.createTemporaryView("processData", outcomeStream);
 

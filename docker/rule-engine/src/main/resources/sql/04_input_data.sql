@@ -19,7 +19,7 @@ CREATE TABLE if not exists raw_events (
     ) WITH (
           'connector' = 'kafka',
           'topic'     = 'event',
-          'properties.bootstrap.servers' = 'localhost:9092',
+          'properties.bootstrap.servers' = 'kafka:9092',
           'scan.startup.mode' = 'latest-offset',
           'format'    = 'raw'
           );

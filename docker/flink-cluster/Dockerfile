@@ -1,7 +1,14 @@
-FROM apache/flink:2.0.0-scala_2.12-java17
+FROM apache/flink:1.18.1-scala_2.12-java17
+
+RUN apt update && \
+    apt install -y nodejs ;\
+    apt install -y npm ;\
+    npm i -g npx
 ENV FLINK_VERSION=2.0.0 \
     SCALA_VERSION=2.12 \
     JAVA_VERSION=17
+COPY logback-console.xml /opt/flink/conf/logback-console.xml
+COPY logback-session.xml /opt/flink/conf/logback-session.xml
 # Download connector libraries
 #wget -P /opt/flink/lib/ https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka/${FLINK_VERSION}/flink-sql-connector-kafka-${FLINK_VERSION}.jar; \
 RUN wget -P /opt/flink/lib/ https://repo.maven.apache.org/maven2/org/apache/flink/flink-connector-jdbc/${FLINK_VERSION}/flink-connector-jdbc-${FLINK_VERSION}.jar; \
