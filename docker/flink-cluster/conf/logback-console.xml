@@ -57,9 +57,9 @@
     <!-- The following lines keep the log level of common libraries/connectors on
          log level INFO. The root logger does not override this. You have to manually
          change the log levels here. -->
-    <Logger name="org.apache.flink" level="ERROR"/>
-    <Logger name="org.apache.kafka" level="ERROR"/>
-    <Logger name="org.apache.flinkmeetup" level="INFO"/>
+    <logger name="org.apache.flink" level="ERROR"/>
+    <logger name="org.apache.kafka" level="ERROR"/>
+    <logger name="org.apache.flinkmeetup" level="INFO"/>
 
     <!-- Suppress the irrelevant (wrong) warnings from the Netty channel handler -->
     <logger name="org.jboss.netty.channel.DefaultChannelPipeline" level="ERROR"/>

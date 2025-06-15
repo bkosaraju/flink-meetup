@@ -1,0 +1,39 @@
+{
+  "uuid": "c20d8933-29b5-499a-a81c-037f5da25384",
+  "type": "http",
+  "documentation": "",
+  "method": "post",
+  "endpoint": "api/pickup-request",
+  "responses": [
+    {
+      "uuid": "e8d6f6e6-7c7a-49fc-8904-335dfda42ad8",
+      "body": "{\n  \"status\": \"success\",\n  \"message\": \"Pickup request received successfully\",\n  \"pickupId\": \"PKUP-{{faker 'datatype.uuid'}}\",\n  \"scheduledTime\": \"{{faker 'date.future' 0.1 '2025-06-19T13:30:00Z'}}\"\n}\n",
+      "latency": 0,
+      "statusCode": 200,
+      "label": "",
+      "headers": [],
+      "bodyType": "INLINE",
+      "filePath": "",
+      "databucketID": "",
+      "sendFileAsBody": false,
+      "rules": [
+        {
+          "target": "body",
+          "modifier": "",
+          "value": "",
+          "invert": false,
+          "operator": "equals"
+        }
+      ],
+      "rulesOperator": "OR",
+      "disableTemplating": false,
+      "fallbackTo404": false,
+      "default": true,
+      "crudKey": "id",
+      "callbacks": []
+    }
+  ],
+  "responseMode": null,
+  "streamingMode": null,
+  "streamingInterval": 0
+}

@@ -7,7 +7,7 @@ CREATE TABLE if not exists kafka_rule (
     ) WITH (
           'connector' = 'kafka',
           'topic'     = 'rule',
-          'properties.bootstrap.servers' = 'kafka:9092',
+          'properties.bootstrap.servers' = 'kafka:9094',
           'scan.startup.mode' = 'latest-offset',
           'format'    = 'json'
           );
