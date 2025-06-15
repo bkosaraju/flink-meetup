@@ -1,0 +1,7 @@
+{
+  "rulename": "NotifyWarehouseOnPartialAllocation",
+  "rulekey": "inventoryStatus",
+  "rulevalue": "if inventory.inventoryStatus is matched to partial_allocation",
+  "actionid": 200,
+  "actionvalue": "Send slack notification to #mcp-flink-meetup with following details in message as inventory shortage ${inventory.items[*].warehouse.warehouseId} for order ${order.orderId} shipping to ${order.shipping.address.line1}, ${order.shipping.address.city}, ${order.shipping.address.state}, ${order.shipping.address.postalCode}. Customer: ${order.customer.name}, Email: ${order.customer.email}"
+}

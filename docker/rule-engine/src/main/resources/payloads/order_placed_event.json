@@ -1,0 +1,47 @@
+{
+  "order": {
+    "orderId": "ORD-20240608-001",
+    "orderDate": "2025-06-08T11:32:00Z",
+    "status": "successful",
+    "customer": {
+      "customerId": "CUST-1001",
+      "name": "Alice Johnson",
+      "email": "alice.johnson@example.com"
+    },
+    "shipping": {
+      "address": {
+        "line1": "123 Elm Street",
+        "city": "Melbourne",
+        "state": "VIC",
+        "postalCode": "3000"
+      }
+    },
+    "payment": {
+      "status": "paid",
+      "totalAmount": 259.75,
+      "paymentMethod": "credit_card"
+    }
+  },
+  "inventory": {
+    "status": "fulfilled",
+    "fulfilledAt": "2025-06-08T11:45:00Z",
+    "items": [
+      {
+        "sku": "SKU-12345",
+        "quantity": 2,
+        "warehouse": {
+          "warehouseId": "WH-101",
+          "location": "Melbourne Distribution Center"
+        }
+      },
+      {
+        "sku": "SKU-67890",
+        "quantity": 1,
+        "warehouse": {
+          "warehouseId": "WH-102",
+          "location": "Sydney Fulfillment Hub"
+        }
+      }
+    ]
+  }
+}

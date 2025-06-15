@@ -1,0 +1,7 @@
+{
+  "rulename": "InsertIntoCompletedOrdersOnSuccess",
+  "rulekey": "orderCompletionCheck",
+  "rulevalue": "if order.status == successful AND inventory.status == fulfilled",
+  "actionid": 300,
+  "actionvalue": "execute_sql by **generating** SQL for create completed_orders table if not existed and Insert into completed_orders mysql table, with orderId: ${order.orderId}, orderDate: ${order.orderDate}, customerId: ${order.customer.customerId}, customerName: ${order.customer.name}, customerEmail: ${order.customer.email}, shippingAddress: ${order.shipping.address.line1}, ${order.shipping.address.city}, ${order.shipping.address.state}, ${order.shipping.address.postalCode}, paymentStatus: ${order.payment.status}, totalAmount: ${order.payment.totalAmount}, fulfillmentDate: ${inventory.fulfilledAt}"
+}

@@ -1,0 +1,7 @@
+{
+  "rulename": "NotifyPostalServiceOnReadyToShip",
+  "rulekey": "order.status + inventory.status",
+  "rulevalue": "if order.status == 'ready_to_ship' and inventory.status == 'fulfilled'",
+  "actionid": 202,
+  "actionvalue": "Send test_request endpoint: 'api/pickup-request' with body details as in json format with attributes {Order: ${order.orderId}, placedOn: ${order.orderDate}, PickupAddress: ${order.shipping.address.line1}, ${order.shipping.address.city}, ${order.shipping.address.state}, ${order.shipping.address.postalCode}, Customer: ${order.customer.name}, ContactEmail: ${order.customer.email}, TotalItems: ${inventory.items.length}, WarehousesInvolved: ${inventory.items[*].warehouse.warehouseId} }"
+}

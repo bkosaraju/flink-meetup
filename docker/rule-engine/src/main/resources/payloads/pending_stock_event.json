@@ -1,0 +1,79 @@
+{
+  "status": "success",
+  "message": "Order placed successfully. Inventory allocation in progress.",
+  "order": {
+    "orderId": "ORD123456",
+    "orderDate": "2025-06-08T11:30:00+10:00",
+    "customer": {
+      "customerId": "CUST7890",
+      "name": "John Doe",
+      "email": "john.doe@example.com"
+    },
+    "items": [
+      {
+        "productId": "PROD001",
+        "productName": "Wireless Headphones",
+        "quantity": 1,
+        "price": 129.99,
+        "currency": "AUD"
+      },
+      {
+        "productId": "PROD002",
+        "productName": "USB-C Charger",
+        "quantity": 2,
+        "price": 19.99,
+        "currency": "AUD"
+      }
+    ],
+    "totalAmount": 169.97,
+    "currency": "AUD",
+    "payment": {
+      "method": "Credit Card",
+      "transactionId": "TXN654321",
+      "status": "paid"
+    },
+    "shipping": {
+      "address": {
+        "line1": "123 Example St",
+        "city": "Sydney",
+        "state": "NSW",
+        "postalCode": "2000",
+        "country": "Australia"
+      },
+      "estimatedDelivery": "2025-06-12",
+      "shippingMethod": "Standard"
+    }
+  },
+  "inventory": {
+    "inventoryStatus": "partial_allocation",
+    "backorderExpected": true,
+    "items": [
+      {
+        "productId": "PROD001",
+        "allocatedQuantity": 1,
+        "availableStock": 35,
+        "stockStatus": "available",
+        "warehouse": {
+          "warehouseId": "WH001",
+          "location": "Sydney, NSW",
+          "shippingETA": "2025-06-09"
+        }
+      },
+      {
+        "productId": "PROD002",
+        "allocatedQuantity": 1,
+        "availableStock": 1,
+        "stockStatus": "partial",
+        "warehouse": {
+          "warehouseId": "WH002",
+          "location": "Melbourne, VIC",
+          "shippingETA": "2025-06-12"
+        },
+        "backorder": {
+          "quantity": 1,
+          "expectedRestockDate": "2025-06-15"
+        }
+      }
+    ]
+  }
+}

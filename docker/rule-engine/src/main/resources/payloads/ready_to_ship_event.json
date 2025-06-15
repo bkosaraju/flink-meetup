@@ -1,0 +1,48 @@
+{
+  "order": {
+    "orderId": "ORD-20240608-002",
+    "orderDate": "2025-06-08T14:10:00Z",
+    "status": "ready_to_ship",
+    "customer": {
+      "customerId": "CUST-1002",
+      "name": "Michael Brown",
+      "email": "michael.brown@example.com"
+    },
+    "shipping": {
+      "method": "standard",
+      "address": {
+        "line1": "456 Oak Lane",
+        "city": "Sydney",
+        "state": "NSW",
+        "postalCode": "2000"
+      }
+    },
+    "payment": {
+      "status": "paid",
+      "totalAmount": 149.99,
+      "paymentMethod": "paypal"
+    }
+  },
+  "inventory": {
+    "status": "fulfilled",
+    "fulfilledAt": "2025-06-08T14:25:00Z",
+    "items": [
+      {
+        "sku": "SKU-45678",
+        "quantity": 1,
+        "warehouse": {
+          "warehouseId": "WH-103",
+          "location": "Sydney Distribution Hub"
+        }
+      },
+      {
+        "sku": "SKU-11223",
+        "quantity": 2,
+        "warehouse": {
+          "warehouseId": "WH-104",
+          "location": "Brisbane Fulfillment Center"
+        }
+      }
+    ]
+  }
+}
